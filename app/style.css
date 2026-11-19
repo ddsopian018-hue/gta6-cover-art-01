@@ -1,0 +1,206 @@
+/* Neon Coast Cover Studio — editor chrome. The cover itself is drawn on canvas. */
+@font-face {
+  font-family: 'Anton';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/anton.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Pacifico';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/pacifico.woff2') format('woff2');
+}
+
+:root {
+  --ink: #f5eefc;
+  --muted: #b9a8cc;
+  --panel: #221133;
+  --panel-2: #2c1742;
+  --line: #4a2d68;
+  --pink: #ff2e88;
+  --orange: #ffb240;
+  --teal: #00e5ff;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: #12081d;
+  color: var(--ink);
+  font: 15px/1.45 system-ui, -apple-system, sans-serif;
+}
+
+header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 14px 22px 10px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(90deg, #2b0f3a, #12081d 70%);
+}
+header h1 {
+  margin: 0;
+  font-family: 'Anton', 'Arial Black', sans-serif;
+  font-size: 30px;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, #ffe259, #ff7e5f, #ff4e8a, #c86bff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+header p { margin: 0; color: var(--muted); }
+header .tag {
+  margin-left: auto;
+  font-family: 'Pacifico', cursive;
+  color: var(--teal);
+  font-size: 17px;
+}
+
+main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 348px;
+  gap: 20px;
+  padding: 18px 22px 28px;
+  max-width: 1480px;
+  margin: 0 auto;
+}
+@media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+.stage { min-width: 0; }
+.stage .canvas-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 18px;
+  background:
+    radial-gradient(600px 300px at 50% 0%, rgba(255, 46, 136, 0.18), transparent 70%),
+    radial-gradient(500px 260px at 50% 100%, rgba(0, 229, 255, 0.12), transparent 70%),
+    #1a0b26;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  min-height: 420px;
+}
+#preview {
+  max-width: 100%;
+  max-height: 72vh;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  cursor: crosshair;
+  background: #12081d;
+}
+#preview.dragging { outline: 3px dashed var(--teal); outline-offset: 6px; }
+.stage .hint { color: var(--muted); font-size: 13px; margin: 10px 2px 0; }
+.stage .hint b { color: var(--ink); }
+
+.controls { display: flex; flex-direction: column; gap: 16px; }
+.controls section {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+}
+.controls h2 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.controls .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+button {
+  font: inherit;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--pink); }
+button.active { background: var(--pink); border-color: var(--pink); color: #fff; }
+button.primary {
+  background: linear-gradient(90deg, #ff2e88, #ff7e5f);
+  border: 0;
+  color: #fff;
+  padding: 12px 16px;
+  font-size: 16px;
+  width: 100%;
+}
+button.primary:hover { filter: brightness(1.12); }
+button.ghost { background: transparent; }
+
+label.field { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 13px; }
+input[type=text] {
+  font: inherit;
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #170a24;
+  color: var(--ink);
+}
+input[type=file] { font: inherit; }
+input[type=range] { width: 100%; accent-color: var(--pink); }
+
+.library { display: flex; gap: 8px; flex-wrap: wrap; }
+.library img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+.library img:hover { border-color: var(--teal); }
+.library img.selected { border-color: var(--pink); }
+.library .add {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  border: 2px dashed var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.slots { display: flex; gap: 6px; }
+.slots button { flex: 1; padding: 8px 4px; }
+.slots button small { display: block; font-weight: 400; font-size: 11px; color: var(--muted); }
+.slots button.active small { color: #ffe3f0; }
+
+.swatches { display: flex; gap: 8px; }
+.swatch {
+  flex: 1;
+  height: 40px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: flex-end;
+  padding: 4px 6px;
+}
+.swatch.active { border-color: #fff; }
+.swatch.sunset { background: linear-gradient(135deg, #ffb240, #ff2e88); }
+.swatch.neon { background: linear-gradient(135deg, #00e5ff, #ff2e88); }
+.swatch.vice { background: linear-gradient(135deg, #a855f7, #fbbf24); }
+.swatch.noir { background: linear-gradient(135deg, #888, #ff2e88); }
+
+#status { min-height: 20px; color: var(--teal); font-size: 13px; }
+.foot { color: var(--muted); font-size: 12px; }
+
+/* Screenshot scenes: cover alone, full frame, no chrome. */
+body.shot-cover header, body.shot-cover main .controls, body.shot-cover .stage .hint { display: none; }
+body.shot-cover main { display: block; padding: 0; max-width: none; }
+body.shot-cover .stage .canvas-wrap { padding: 0; border: 0; border-radius: 0; background: #12081d; min-height: 0; }
+body.shot-cover #preview { max-width: none; max-height: none; width: 100vw; height: 100vh; box-shadow: none; }
